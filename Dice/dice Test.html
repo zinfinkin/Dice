@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice Roller</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            display: flex; /* Changed to flexbox layout */
+            justify-content: center;
+            gap: 50px; /* Added gap between main content and log */
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .result, .stats {
+            margin-top: 20px;
+        }
+        table {
+            width: 50%;
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .dice-image {
+            margin-top: 20px;
+        }
+        .dice-image img {
+            width: 100px;
+            height: 100px;
+            margin: 5px;
+        }
+        .total-rolls {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        /* Styling for the roll log */
+        .roll-log {
+            width: 200px; /* Width of the log box */
+            border: 1px solid #ddd; /* Border for the log box */
+            padding: 10px; /* Padding inside the log box */
+            max-height: 200px; /* Maximum height for the log box */
+            overflow-y: auto; /* Scrollable if content exceeds max height */
+            text-align: left; /* Align text to the left */
+        }
+    </style>
+</head>
+<body>
+
+    <div>
+        <h1>Dice Roller</h1>
+        <button id="rollOneDice">Roll One Dice</button>
+        <button id="rollTwoDice">Roll Two Dice</button>
+        <button id="resetRolls">Reset Rolls</button>
+        
+        <div class="result">
+            <p>Latest Roll:</p>
+            <div class="dice-image" id="diceImages">
+                <!-- Dice images will appear here -->
+            </div>
+        </div>
+
+        <div class="stats">
+            <h2>Roll Statistics (Sum of Rolls from 1 to 12)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Number</th>
+                        <th>Times Rolled</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td id="count1">0</td>
+                        <td id="percent1">0%</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td id="count2">0</td>
+                        <td id="percent2">0%</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td id="count3">0</td>
+                        <td id="percent3">0%</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td id="count4">0</td>
+                        <td id="percent4">0%</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td id="count5">0</td>
+                        <td id="percent5">0%</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td id="count6">0</td>
+                        <td id="percent6">0%</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td id="count7">0</td>
+                        <td id="percent7">0%</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td id="count8">0</td>
+                        <td id="percent8">0%</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td id="count9">0</td>
+                        <td id="percent9">0%</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td id="count10">0</td>
+                        <td id="percent10">0%</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td id="count11">0</td>
+                        <td id="percent11">0%</td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td id="count12">0</td>
+                        <td id="percent12">0%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="total-rolls" id="totalRollsDisplay">
+            Total Rolls: 0
+        </div>
+    </div>
+
+    <div class="roll-log" id="rollLog">
+        <h2>Roll Log</h2>
+        <ul id="logList">
+            <!-- Log entries will appear here -->
+        </ul>
+    </div>
+
+    <script>
+        // Get elements
+        const rollOneDiceButton = document.getElementById('rollOneDice');
+        const rollTwoDiceButton = document.getElementById('rollTwoDice');
+        const resetButton = document.getElementById('resetRolls');
+        const diceImagesElement = document.getElementById('diceImages');
+        const totalRollsDisplay = document.getElementById('totalRollsDisplay');
+        const logList = document.getElementById('logList'); // Roll log list
+        
+        // Elements for roll count statistics
+        const countElements = {
+            1: document.getElementById('count1'),
+            2: document.getElementById('count2'),
+            3: document.getElementById('count3'),
+            4: document.getElementById('count4'),
+            5: document.getElementById('count5'),
+            6: document.getElementById('count6'),
+            7: document.getElementById('count7'),
+            8: document.getElementById('count8'),
+            9: document.getElementById('count9'),
+            10: document.getElementById('count10'),
+            11: document.getElementById('count11'),
+            12: document.getElementById('count12')
+        };
+
+        // Elements for percentages
+        const percentElements = {
+            1: document.getElementById('percent1'),
+            2: document.getElementById('percent2'),
+            3: document.getElementById('percent3'),
+            4: document.getElementById('percent4'),
+            5: document.getElementById('percent5'),
+            6: document.getElementById('percent6'),
+            7: document.getElementById('percent7'),
+            8: document.getElementById('percent8'),
+            9: document.getElementById('percent9'),
+            10: document.getElementById('percent10'),
+            11: document.getElementById('percent11'),
+            12: document.getElementById('percent12')
+        };
+
+        // Retrieve previous roll counts from localStorage or initialize empty counts
+        let rollCounts = JSON.parse(localStorage.getItem('rollCounts')) || { 
+            1: 0, 
+            2: 0, 
+            3: 0, 
+            4: 0, 
+            5: 0, 
+            6: 0, 
+            7: 0, 
+            8: 0, 
+            9: 0, 
+            10: 0, 
+            11: 0, 
+            12: 0 
+        };
+
+        // Variable to keep track of the total number of rolls
+        let totalRolls = Object.values(rollCounts).reduce((a, b) => a + b, 0);
+
+        // Array to keep track of roll log
+        let rollLog = [];
+
+        // Function to roll a dice (1-6)
+        function rollDice() {
+            return Math.floor(Math.random() * 6) + 1;
+        }
+
+        // Function to update the UI with the roll count statistics
+        function updateStatistics() {
+            for (let num = 1; num <= 12; num++) {
+                countElements[num].textContent = rollCounts[num];
+
+                // Calculate percentage
+                const percentage = totalRolls > 0 ? ((rollCounts[num] / totalRolls) * 100).toFixed(2) : 0;
+                percentElements[num].textContent = `${percentage}%`;
+            }
+
+            // Update total rolls display
+            totalRollsDisplay.textContent = `Total Rolls: ${totalRolls}`;
+        }
+
+        // Function to display dice images based on the roll
+        function displayDiceImages(rolls) {
+            diceImagesElement.innerHTML = ''; // Clear previous images
+
+            rolls.forEach(roll => {
+                const img = document.createElement('img');
+                img.src = `http://localhost:8000/images/dice${roll}.png`; // Adjust as needed
+                img.alt = `Dice showing ${roll}`;
+                img.width = 100; // Set width of dice (optional)
+                img.height = 100; // Set height of dice (optional)
+                diceImagesElement.appendChild(img);
+            });
+        }
+
+        // Function to update the roll log
+        function updateRollLog(roll, isTwoDice) {
+            const turnNumber = rollLog.length + 1; // Current turn number
+            const logEntry = `Turn ${turnNumber}: ${isTwoDice ? `Sum: ${roll}` : `Roll: ${roll}`}`;
+            rollLog.unshift(logEntry); // Add to the beginning of the log
+
+            // Keep only the last 10 rolls
+            if (rollLog.length > 10) {
+                rollLog.pop(); // Remove the oldest roll if we exceed 10
+            }
+
+            // Update the log display
+            logList.innerHTML = rollLog.map(entry => `<li>${entry}</li>`).join(''); // Create list items for each entry
+        }
+
+        // Event listener for rolling one dice
+        rollOneDiceButton.addEventListener('click', () => {
+            const newRoll = rollDice();  // Roll one dice
+            rollCounts[newRoll]++;       // Increment the corresponding number's count
+            totalRolls++;                // Increment the total rolls count
+            localStorage.setItem('rollCounts', JSON.stringify(rollCounts)); // Store updated counts
+
+            // Update the UI
+            displayDiceImages([newRoll]);
+            updateStatistics();
+            updateRollLog(newRoll, false); // Update log for single dice roll
+        });
+
+        // Event listener for rolling two dice
+        rollTwoDiceButton.addEventListener('click', () => {
+            const roll1 = rollDice();  // Roll first dice
+            const roll2 = rollDice();  // Roll second dice
+            const sum = roll1 + roll2; // Get the sum of two dice
+            rollCounts[sum]++;         // Increment the count for the sum
+            totalRolls++;              // Increment the total rolls count
+            localStorage.setItem('rollCounts', JSON.stringify(rollCounts)); // Store updated counts
+
+            // Update the UI
+            displayDiceImages([roll1, roll2]);
+            updateStatistics();
+            updateRollLog(sum, true); // Update log for two dice roll
+        });
+
+        // Event listener for the Reset button
+        resetButton.addEventListener('click', () => {
+            rollCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0 }; // Reset roll counts
+            totalRolls = 0; // Reset total rolls
+            rollLog = []; // Reset roll log
+            localStorage.removeItem('rollCounts'); // Clear localStorage
+
+            // Reset the UI
+            diceImagesElement.innerHTML = ''; // Clear dice images
+            updateStatistics();
+            logList.innerHTML = ''; // Clear the roll log
+        });
+
+        // On page load, update statistics if any rolls exist
+        updateStatistics();
+    </script>
+
+</body>
+</html>
